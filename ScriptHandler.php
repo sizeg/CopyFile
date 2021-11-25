@@ -16,6 +16,7 @@ class ScriptHandler
     {
         $extras = $event->getComposer()->getPackage()->getExtra();
         $extraField = $event->isDevMode() && isset($extras['copy-file-dev']) ? 'copy-file-dev' : 'copy-file';
+        $ignoreUnreadableDirs = (bool)($extras['copy-file-ignore-unreadable-dirs'] ?? false);
 
         $io = $event->getIO();
         if (!isset($extras[$extraField])) {
@@ -69,8 +70,9 @@ class ScriptHandler
             }
 
             if (is_dir($from)) {
-                $finder = new Finder;
-                $finder->files()->ignoreDotFiles(false)->in($from);
+                $finder = new Finder();
+                $finder->files()->ignoreDotFiles(false)->in($from)
+                    ->ignoreUnreadableDirs($ignoreUnreadableDirs);
 
                 if ($pattern) {
                     $finder->path("#{$pattern}#");
